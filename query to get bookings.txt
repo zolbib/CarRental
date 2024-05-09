@@ -1,0 +1,19 @@
+SELECT 
+    b.id AS booking_id,
+    c.id AS car_id,
+    b.start_date,
+    b.end_date,
+    b.total_price,
+    co.owner_id AS car_owner_id,
+    co.first_name AS owner_first_name,
+    co.last_name AS owner_last_name,
+    clc.first_name AS client_first_name,
+    clc.last_name AS client_last_name
+FROM
+    bookings b
+        INNER JOIN
+    cars c ON b.car_id = c.id
+        INNER JOIN
+    car_owners co ON c.owner_id = co.owner_id
+        INNER JOIN
+    clients clc ON b.client_id = clc.client_id;
