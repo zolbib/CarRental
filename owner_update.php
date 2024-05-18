@@ -23,7 +23,7 @@ if (isset($_POST['logout'])) {
 }
 
 $query = "SELECT owner_id FROM car_owners WHERE user_id = :user_id";
-$statement = $connection->prepare($query);
+$statement = $connection->prepare($query);  
 $statement->bindParam(':user_id', $_SESSION['user_id']);
 $statement->execute();
 $ownerMapping = $statement->fetch(PDO::FETCH_ASSOC);
