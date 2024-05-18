@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,7 +10,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Dashboard</title>
+    <title>Admin dashboard</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -18,7 +19,7 @@
         rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/sb-admin-2.css" rel="stylesheet">
 
 </head>
 
@@ -31,7 +32,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index_owner.php">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index_admin.php">
                 <div class="sidebar-brand-icon">
                     <img style="width:50px;" src="logos/only-logo-no-background.png" alt="">
                 </div>
@@ -44,7 +45,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="index_owner.php">
+                <a class="nav-link" href="index_admin.php">
                     <i class="fas fa-fw fa-home"></i>
                     <span>Home</span></a>
             </li>
@@ -53,40 +54,35 @@
             <hr class="sidebar-divider">
 
             <!-- Heading -->
-            <div class="sidebar-heading">
-                Interface
-            </div>
+            <!-- <div class="sidebar-heading">
+                
+            </div> -->
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                <a class="nav-link collapsed" href="admin_clients.php"
                     aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-car"></i>
-                    <span>My cars</span>
+                    <i class="fas fa-user"></i>
+                    <span>Clients</span>
                 </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Options:</h6>
-                        <a class="collapse-item" href="my_cars.php">Edit cars</a>
-                        <a class="collapse-item" href="add_car.php">Add my car</a>
-                    </div>
-                </div>
             </li>
 
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="owner_bookings.php">
-                    <i class="fas fa-book "></i>
-                    <span>Bookings</span>
+                <a class="nav-link collapsed" href="admin_owners.php
+                "
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-user"></i>
+                    <span>Car owners</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="owner_earnings.php">
-                    <i class="fas fa-dollar-sign "></i>
-                    <span>Earnings</span>
+                <a class="nav-link collapsed" href="#"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-car"></i>
+                    <span>Cars for rent</span>
                 </a>
             </li>
-
 
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -123,18 +119,13 @@
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
-
-
-
-
-
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $username ?></span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $user ?></span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->

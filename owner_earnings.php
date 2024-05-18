@@ -41,9 +41,21 @@ $statement->bindParam(':owner_id', $ownerId);
 $statement->execute();
 $earnings = $statement->fetchColumn();
 
-$query = "SELECT total_price as price, DATE(created_at) as date FROM bookings WHERE owner GROUP BY DATE(created_at)";
+$query = "SELECT
+SUM(b.total_price) AS price,
+DATE(b.created_at) AS date
+FROM
+bookings b
+JOIN
+cars c ON b.car_id = c.id
+WHERE
+c.owner_id = :owner_id  -- Replace with the appropriate owner_id condition
+GROUP BY
+DATE(b.created_at);
+";
 
 $statement = $connection->prepare($query);
+$statement->bindParam(':owner_id', $ownerId);
 $statement->execute();
 $owner_chart_data = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -69,6 +81,22 @@ require_once ('Layout/Owner_layout.php')
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Earnings by Date</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="earningsChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -149,6 +177,94 @@ require_once ('Layout/Owner_layout.php')
     function submitLogoutForm() {
         document.getElementById('logoutForm').submit();
     }
+
+    // Earnings Chart
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        const earningsData = <?= json_encode($owner_chart_data) ?>;
+        const labels = earningsData.map(data => data.date);
+        const prices = earningsData.map(data => data.price);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Earnings ($)',
+                    data: prices,
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverRadius: 3,
+                    pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        time: {
+                            unit: 'date'
+                        },
+                        gridLines: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 7
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            callback: function(value, index, values) {
+                                return '$' + value;
+                            }
+                        },
+                        gridLines: {
+                            color: 'rgb(234, 236, 244)',
+                            zeroLineColor: 'rgb(234, 236, 244)',
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    backgroundColor: 'rgb(255,255,255)',
+                    bodyFontColor: '#858796',
+                    titleMarginBottom: 10,
+                    titleFontColor: '#6e707e',
+                    titleFontSize: 14,
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    intersect: false,
+                    mode: 'index',
+                    caretPadding: 10
+                }
+            }
+        });
+    });
 </script>
 
 </body>
