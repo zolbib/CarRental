@@ -77,10 +77,17 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#"
+                <a class="nav-link collapsed" href="admin_cars.php"
                     aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-car"></i>
                     <span>Cars for rent</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="admin_history.php"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-history"></i>
+                    <span>Rental History</span>
                 </a>
             </li>
 
@@ -125,7 +132,7 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $user ?></span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $username ?></span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->

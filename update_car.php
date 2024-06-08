@@ -1,11 +1,11 @@
 <?php
+$msg = '';
 include_once ('db_conn.php');
 session_start();
-$msg = '';
-$userid = $_SESSION['user_id'];
+
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
-if ($role != 'car_owner') {
+if ($role != 'admin') {
     header('Location: login.php');
     exit();
 }
@@ -14,11 +14,6 @@ if (!$username) {
     exit();
 }
 
-$query = "SELECT owner_id FROM car_owners WHERE user_id = :userid";
-$statement = $connection->prepare($query);
-$statement->bindParam(':userid', $userid);
-$statement->execute();
-$ownerid = $statement->fetchColumn();
 
 if (isset($_POST['logout'])) {
     session_destroy();
@@ -26,17 +21,29 @@ if (isset($_POST['logout'])) {
     header("Location: login.php");
     exit();
 }
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Handle other form inputs
+
+if (isset($_GET['car_id'])) {
+    $car_id = $_GET['car_id'];
+
+    // Fetch car details from the database based on car_id
+    $query = "SELECT * FROM cars WHERE id = :car_id";
+    $statement = $connection->prepare($query);
+    $statement->bindParam(':car_id', $car_id);
+    $statement->execute();
+    $car = $statement->fetch(PDO::FETCH_ASSOC);
+}
+
+if (isset($_POST["submit"])) {
     $brand = $_POST['brand'];
     $model = $_POST['model'];
     $year = $_POST['year'];
     $color = $_POST['color'];
     $price = $_POST['price'];
 
+    // Check if file is selected
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['image']['tmp_name'];
-        $fileName = basename($_FILES['image']['name']);
+        $fileName = $_FILES['image']['name'];
 
         // Specify the upload directory
         $uploadDirectory = 'cars/';
@@ -44,32 +51,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Move the uploaded file to the specified directory
         $destPath = $uploadDirectory . $fileName;
         if (move_uploaded_file($fileTmpPath, $destPath)) {
-            // Insert the data into the database
-            $query = "INSERT INTO cars (owner_id,brand, model, year, color, price, img) 
-                      VALUES (:ownerid,:brand, :model, :year, :color, :price, :image_name)";
+            // Update the data in the database
+            $query = "UPDATE cars 
+                      SET brand = :brand, model = :model, year = :year, color = :color, price = :price, img = :image_name 
+                      WHERE id = :car_id";
             $statement = $connection->prepare($query);
-            $statement->bindParam(':ownerid',$ownerid);
             $statement->bindParam(':brand', $brand);
             $statement->bindParam(':model', $model);
             $statement->bindParam(':year', $year);
             $statement->bindParam(':color', $color);
             $statement->bindParam(':price', $price);
             $statement->bindParam(':image_name', $fileName);
+            $statement->bindParam(':car_id', $car_id);
             $statement->execute();
 
-            header("Location: index_owner.php");
+            header("Location: admin_cars.php");
             exit();
-        }
         } else {
             $msg = "Failed to move the uploaded file!";
         }
     } else {
-        $msg = "No file selected or error occurred while uploading!";
+        $query = "UPDATE cars 
+        SET brand = :brand, model = :model, year = :year, color = :color, price = :price
+        WHERE id = :car_id";
+        $statement = $connection->prepare($query);
+        $statement->bindParam(':brand', $brand);
+        $statement->bindParam(':model', $model);
+        $statement->bindParam(':year', $year);
+        $statement->bindParam(':color', $color);
+        $statement->bindParam(':price', $price);
+        $statement->bindParam(':car_id', $car_id);
+        $statement->execute();
+        header("Location: admin_cars.php");
+        exit();
     }
+}
+require_once ('Layout/Admin_layout.php')
 
 
 
-require_once('Layout/owner_layout.php');
+
 ?>
 
 
@@ -81,43 +102,51 @@ require_once('Layout/owner_layout.php');
                         <div class="col-lg-6">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Add New Car</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Edit my Car</h6>
                                 </div>
                                 <div class="card-body">
                                     <form method="post" enctype="multipart/form-data">
                                         <div class="form-group">
                                             <label for="brand">Brand:</label>
-                                            <input type="text" class="form-control" id="brand" name="brand" required>
+                                            <input type="text" class="form-control" id="brand" name="brand" required
+                                                value="<?= $car['brand'] ?>">
                                         </div>
 
                                         <div class="form-group">
                                             <label for="model">Model:</label>
-                                            <input type="text" class="form-control" id="model" name="model" required>
+                                            <input type="text" class="form-control" id="model" name="model"
+                                                value="<?= $car['model'] ?>" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="year">Year:</label>
-                                            <input type="number" class="form-control" id="year" name="year" min="1900"
-                                                max="<?php echo date('Y'); ?>" step="1" required>
+                                            <input type="number" value="<?= $car['year'] ?>" class="form-control"
+                                                id="year" name="year" min="1900" max="<?php echo date('Y'); ?>" step="1"
+                                                required>
                                         </div>
                                         <div class="form-group">
                                             <label for="color">Color:</label>
-                                            <input type="text" class="form-control" id="color" name="color" required>
+                                            <input type="text" class="form-control" id="color" name="color"
+                                                value="<?= $car['color'] ?>" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="price">Price:</label>
                                             <input type="number" step="0.01" class="form-control" id="price"
-                                                name="price" required>
+                                                name="price" value="<?= $car['price'] ?>" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="image">Image:</label>
                                             <div>
-                                                <input type="file" class="form-control-file" id="image" name="image">
+                                                <input type="file" class="form-control-file" id="image" name="image"
+                                                    value="cars/<?= $car['img'] ?>">
                                             </div>
 
                                         </div>
 
                                         <button type="submit" name="submit" class="btn btn-primary">Submit</button>
-                                        <p id="form3Example5Help" class="form-text  text-success"><?=$msg?></p>
+
+                                        <a href="my_cars.php" type="submit" name="submit"
+                                            class="btn btn-danger">cancel</a>
+                                        <p id="form3Example5Help" class="form-text  text-success"><?= $msg ?></p>
                                     </form>
                                 </div>
                             </div>
@@ -125,8 +154,12 @@ require_once('Layout/owner_layout.php');
                         <div class="col-lg-6 ms-4">
                             <div class="d-flex justify-content-center">
                                 <div>
-                                    <img id="preview" src="#" alt="Image Preview"
-                                        style="max-width: 400px; max-height: 400px; margin-top: 10px; display: none;">
+                                    <hr>
+                                    <h1 class="title text-primary">Image Preview :</h1>
+                                    <hr>
+                                    <img id="preview" src="cars/<?= $car['img'] ?>" alt="Image Preview"
+                                        style="max-width: 400px; max-height: 400px; margin-top: 10px; display: block;">
+                                    <hr>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-center">
@@ -268,8 +301,6 @@ require_once('Layout/owner_layout.php');
         // Event listener for remove image button click event
         document.getElementById('removeImageBtn').addEventListener('click', removeImage);
     </script>
-
-
 </body>
 
 </html>

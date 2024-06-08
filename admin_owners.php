@@ -2,7 +2,7 @@
 include_once ('db_conn.php');
 session_start();
 
-$user = $_SESSION['username'];
+$username = $_SESSION['username'];
 $role = $_SESSION['role'];
 
 
@@ -10,7 +10,7 @@ if ($role != 'admin') {
     header('Location: login.php');
     exit();
 }
-if (!$user) {
+if (!$username) {
     header("Location: login.php");
     exit();
 }

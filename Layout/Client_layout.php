@@ -59,16 +59,15 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="index.php" data-toggle="collapse" data-target="#collapseUtilities"
-                    aria-expanded="true" aria-controls="collapseUtilities">
+                <a class="nav-link collapsed" href="index.php">
                     <i class="fas fa-dollar-sign "></i>
                     <span>Book a car</span>
                 </a>
             </li>            
             <li class="nav-item">
-                <a class="nav-link collapsed" href="mybookings.php" data-toggle="collapse" data-target="#collapseUtilities"
-                    aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-dollar-sign "></i>
+                <a class="nav-link collapsed" href="my_bookings.php" 
+                    >
+                    <i class="fas fa-ticket-alt "></i>
                     <span>My Bookings</span>
                 </a>
             </li>

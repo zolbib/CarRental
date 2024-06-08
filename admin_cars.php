@@ -2,13 +2,13 @@
 include_once('db_conn.php');
 session_start();
 
-$user = $_SESSION['username'];
-$role = $_SESSION['role'];
+$username = $_SESSION['username'] ?? null;
+$role = $_SESSION['role'] ?? null;
 if ($role != 'admin') {
     header('Location: login.php');
     exit();
 }
-if (!$user) {
+if (!$username) {
     header("Location: login.php");
     exit();
 }
@@ -22,12 +22,20 @@ if (isset($_POST['logout'])) {
 $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
 
 if (!empty($searchTerm)) {
-    $query = "SELECT * FROM cars WHERE CONCAT(brand, ' ', model) LIKE '%$searchTerm%'";
+    $query = "SELECT cars.*, car_owners.first_name, car_owners.last_name 
+              FROM cars 
+              JOIN car_owners ON cars.owner_id = car_owners.owner_id 
+              WHERE CONCAT(cars.brand, ' ', cars.model) LIKE :searchTerm";
+    $searchTerm = '%' . $searchTerm . '%';
+    $statement = $connection->prepare($query);
+    $statement->bindParam(':searchTerm', $searchTerm);
 } else {
-    $query = "SELECT * FROM cars";
+    $query = "SELECT cars.*, car_owners.first_name, car_owners.last_name 
+              FROM cars 
+              JOIN car_owners ON cars.owner_id = car_owners.owner_id";
+    $statement = $connection->prepare($query);
 }
 
-$statement = $connection->prepare($query);
 if (!$statement) {
     die("Query preparation failed: " . $connection->error);
 }
@@ -77,7 +85,7 @@ require_once('Layout/admin_layout.php');
         <div class="col-md-12">
             <div class="mt-5 mb-3 clearfix">
                 <h2 class="pull-left">Car Details</h2>
-                <a href="add_car.php" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add New Car</a>
+                <a href="admin_add_car.php" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add New Car</a>
             </div>
             <?php if (count($cars) > 0): ?>
             <div class="row">
@@ -85,13 +93,15 @@ require_once('Layout/admin_layout.php');
                 <div class="col-md-4 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title"><?= $car['brand'] . ' ' . $car['model'] ?></h5>
+                            <h5 class="card-title text-dark"><b><?= $car['brand'] . ' ' . $car['model'] ?></b></h5>
                             <div style="height: 200px; overflow: hidden;">
-                                <img src="cars/<?= $car['img']; ?>" class="card-img-top" alt="<?= $row['brand']; ?>">
+                                <img src="cars/<?= $car['img']; ?>" class="card-img-top" alt="<?= $car['brand']; ?>">
                             </div>
-                            <p class="card-text">Year: <?= $car['year'] ?></p>
-                            <p class="card-text">Color: <?= $car['color'] ?></p>
-                            <a href="update_car.php?id=<?= $car['id'] ?>" class="btn btn-primary">Edit</a>
+                            <p class="card-text"><b class="text-dark">Year:</b> <?= $car['year'] ?></p>
+                            <p class="card-text"><b class="text-dark">Color:</b> <?= $car['color'] ?></p>
+                            <p class="card-text"><b class="text-dark">Price:</b> <?= $car['price'] ?></p>
+                            <p class="card-text"><b class="text-dark">Owner:</b> <?= $car['first_name'] . ' ' . $car['last_name'] ?></p>
+                            <a href="update_car.php?car_id=<?= $car['id'] ?>" class="btn btn-primary">Edit</a>
                             <button type="button" class="btn btn-danger delete-car-btn" data-toggle="modal" data-target="#deleteCarModal" data-car-id="<?= $car['id'] ?>">Delete</button>
                         </div>
                     </div>
@@ -99,7 +109,7 @@ require_once('Layout/admin_layout.php');
                 <?php endforeach; ?>
             </div>
             <?php else: ?>
-            <div class="alert alert-danger"><em>No records were found.</em></div>
+            <div class="alert alert-danger"><em>No cars were found.</em></div>
             <?php endif; ?>
         </div>
     </div>
